@@ -1,0 +1,16 @@
+<div class="flex flex-col justify-center items-center h-screen">
+
+    <h1 class="text-2xl w-full max-w-lg font-bold text-start mb-4">Welcome back!</h1>
+
+    <div [formGroup]="form" class="flex flex-col min-w-lg max-w-lg gap-4">
+            
+        <input formControlName="email" type="email" placeholder="financialhealth@example.com" class="border p-2 rounded-lg w-full" />
+        <input formControlName="password" type="password" placeholder="Your secret password" class="border p-2 rounded-lg w-full" />
+
+        <button 
+        (click)="login()"
+        [disabled]="form.invalid"
+        class="bg-blue-500 text-white p-2 w-full rounded-lg cursor-pointer" >Lets go</button>
+    </div>
+    
+</div>
