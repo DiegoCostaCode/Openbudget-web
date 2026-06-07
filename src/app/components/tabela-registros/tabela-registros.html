@@ -53,11 +53,27 @@
                 </div>
 
                 <div 
-                    class=" overflow-hidden transition-all duration-300"
+                    class="overflow-hidden transition-all duration-300"
                     [class.max-h-0]="expandedDate() !== day.date"
                     [class.max-h-48]="expandedDate() === day.date"
                 >
-                    <button>Add new transaction</button>
+                    <div class="ml-10">
+
+                        @if (day.transactions.length > 0) {
+                            @for (transaction of day.transactions; track transaction.id){
+                                <div>
+                                    <ul class="flex flex-row gap-2">
+                                        <li>{{transaction.type}}</li>
+                                        <li>{{transaction.description}}</li>
+                                        <li>{{transaction.amount | currency: "BRL"}}</li>
+                                    </ul>
+                                </div>
+                            }
+                        } @else {
+                            <p class="text-center w-full text-gray-500">No transactions</p>
+                        }
+
+                    </div>
                 </div>
             }
             

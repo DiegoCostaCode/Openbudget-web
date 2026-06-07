@@ -13,13 +13,13 @@ import {
 } from '@angular/core';
 import { Transactions } from '../../services/transactions';
 import { ProjectionSnapshotDTO, TransactionDTO } from '../../models/transactions';
-import { CurrencyPipe, formatDate, NgClass } from '@angular/common';
+import { CurrencyPipe, formatDate } from '@angular/common';
 import Scrollbar from 'smooth-scrollbar';
 
 @Component({
   selector: 'app-tabela-registros',
   standalone: true,
-  imports: [CurrencyPipe, NgClass],
+  imports: [CurrencyPipe],
   templateUrl: './tabela-registros.html',
   styleUrl: './tabela-registros.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
