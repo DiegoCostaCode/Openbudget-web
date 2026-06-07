@@ -1,7 +1,15 @@
 
 <div 
-    class="overflow-hidden"
+    class="overflow-hidden relative"
 >
+    @if (!isViewingToday()) {
+        <div class="absolute bottom-4 right-4 z-50">
+            <button class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-full shadow-lg cursor-pointer transition-all" (click)="scrollToTodayRecords()">
+                today
+            </button>
+        </div>
+    }
+
     <div class="grid gap-0">
 
         <div class="grid grid-cols-4 bg-gray-50 border-b sticky top-0">
@@ -13,17 +21,18 @@
 
         <div 
             class="max-h-96 overflow-y-auto"
+            (scroll)="checkIfViewIsAtToday()"
             #tableContainer
         >
+            
             @for (day of transactionsRecord().days; track day.date){
                 <div
                     #dayRow
                     [id]="'day-' + day.date"
-                    [class.ring-2]="isToday(day.date)"
-                    [class.ring-blue-500]="isToday(day.date)"
-                    class="grid grid-cols-4 border-b hover:bg-gray-50"
+                    [class.today-row]="isToday(day.date)"
+                    class="grid grid-cols-4 hover:bg-gray-50 cursor-pointer"
+                    (click)="toggleDay(day.date)"
                 >
-
                     <div 
                         class="px-4 py-2"
                     >
@@ -42,12 +51,18 @@
                         </div>
                     </div>
                 </div>
-            }
-        </div>
-    </div>
 
-    <div>
-        <button class="cursor-pointer" (click)="scrollToTodayRecords()">today</button>
+                <div 
+                    class=" overflow-hidden transition-all duration-300"
+                    [class.max-h-0]="expandedDate() !== day.date"
+                    [class.max-h-48]="expandedDate() === day.date"
+                >
+                    <button>Add new transaction</button>
+                </div>
+            }
+            
+        </div>
+
     </div>
 
 </div>

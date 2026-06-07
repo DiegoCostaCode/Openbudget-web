@@ -8,17 +8,18 @@ import {
   ElementRef,
   AfterViewInit,
   QueryList,
-  ViewChildren 
+  ViewChildren,
+  OnInit
 } from '@angular/core';
 import { Transactions } from '../../services/transactions';
 import { ProjectionSnapshotDTO, TransactionDTO } from '../../models/transactions';
-import { CurrencyPipe, formatDate } from '@angular/common';
+import { CurrencyPipe, formatDate, NgClass } from '@angular/common';
 import Scrollbar from 'smooth-scrollbar';
 
 @Component({
   selector: 'app-tabela-registros',
   standalone: true,
-  imports: [CurrencyPipe],
+  imports: [CurrencyPipe, NgClass],
   templateUrl: './tabela-registros.html',
   styleUrl: './tabela-registros.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,11 +34,16 @@ export class TabelaRegistros implements AfterViewInit, OnDestroy {
     days: []
   });
 
+  isViewAtToday = signal<boolean>(true);
+
   @ViewChild('tableContainer')
   tableContainer!: ElementRef<HTMLDivElement>;
 
   @ViewChildren('dayRow')
   dayRows!: QueryList<ElementRef<HTMLDivElement>>;
+
+  isViewingToday = signal(true)
+  expandedDate = signal<string | null>(null);
 
   ngOnInit(): void {
     this.getProjection();
@@ -52,12 +58,14 @@ export class TabelaRegistros implements AfterViewInit, OnDestroy {
       }
     );
 
+    this.scrollbar.addListener(() => {
+      this.checkIfViewIsAtToday();
+    });
+
     this.dayRows.changes.subscribe(() => {
-
         this.scrollbar.update();
-
         this.scrollToTodayRecords();
-
+        this.checkIfViewIsAtToday();
     });
   }
 
@@ -99,6 +107,37 @@ export class TabelaRegistros implements AfterViewInit, OnDestroy {
     return date === formatDate(new Date(), 'yyyy-MM-dd', 'en-US');
   }
 
+  checkIfViewIsAtToday(): void {
+    const todayString = formatDate(
+      new Date(),
+      'yyyy-MM-dd',
+      'en-US'
+    );
+
+    const todayRow = this.dayRows.find(
+      row => row.nativeElement.id === `day-${todayString}`
+    );
+
+    if (!todayRow) {
+      this.isViewingToday.set(false);
+      console.log(this.isViewingToday())
+      return;
+    }
+
+    const containerRect =
+      this.tableContainer.nativeElement.getBoundingClientRect();
+
+    const elementRect =
+      todayRow.nativeElement.getBoundingClientRect();
+
+    const isVisible =
+      elementRect.bottom > containerRect.top &&
+      elementRect.top < containerRect.bottom;
+
+    this.isViewingToday.set(isVisible);
+    console.log(this.isViewingToday())
+}
+
   scrollToTodayRecords(): void {
     const todayString = formatDate(
       new Date(),
@@ -135,6 +174,12 @@ export class TabelaRegistros implements AfterViewInit, OnDestroy {
       Math.max(0, targetPosition),
       800
     );
+  }
+
+  toggleDay(date: string): void {
+    this.expandedDate.update(
+      current => current === date ? null : date
+    )
   }
 
   ngOnDestroy() {
