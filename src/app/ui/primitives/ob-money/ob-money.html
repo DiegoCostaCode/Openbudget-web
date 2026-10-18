@@ -1,0 +1,5 @@
+@if (isEmpty()) {
+  <span class="text-fg-subtle font-mono tabular-nums">—</span>
+} @else {
+  <span [class]="moneyClasses()">{{ displayPrefix() }}{{ formattedAmount() }}</span>
+}

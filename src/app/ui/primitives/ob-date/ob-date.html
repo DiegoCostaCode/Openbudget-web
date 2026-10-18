@@ -1,0 +1,4 @@
+@if (showWeekday()) {
+  <span class="text-fg-subtle uppercase">{{ weekday() }}</span>
+}
+<span [class]="dateClasses()">{{ formattedDate() }}</span>
