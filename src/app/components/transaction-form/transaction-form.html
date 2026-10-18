@@ -1,0 +1,143 @@
+<ob-panel variant="primary">
+  <ob-panel-bar title="NOVA TRANSAÇÃO" meta="REGISTRO MANUAL" position="top" />
+
+  <form [formGroup]="form" (ngSubmit)="submit()" class="p-6 flex flex-col gap-4 font-mono">
+    <!-- Seletor de Tipo (INCOME / EXPENSE) -->
+    <div>
+      <span class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+        TIPO DE MOVIMENTAÇÃO
+      </span>
+      <div class="inline-flex border border-line-strong bg-surface-sunken w-full">
+        <button
+          type="button"
+          (click)="setType('INCOME')"
+          class="flex-1 px-4 py-2 text-xs border-r border-line-strong transition-colors uppercase cursor-pointer text-center"
+          [class.bg-accent]="selectedType() === 'INCOME'"
+          [class.font-bold]="selectedType() === 'INCOME'"
+          [class.text-on-accent]="selectedType() === 'INCOME'"
+          [class.text-fg-muted]="selectedType() !== 'INCOME'"
+          [class.hover:bg-tint-fill]="selectedType() !== 'INCOME'"
+        >
+          + ENTRADA
+        </button>
+        <button
+          type="button"
+          (click)="setType('EXPENSE')"
+          class="flex-1 px-4 py-2 text-xs transition-colors uppercase cursor-pointer text-center"
+          [class.bg-accent]="selectedType() === 'EXPENSE'"
+          [class.font-bold]="selectedType() === 'EXPENSE'"
+          [class.text-on-accent]="selectedType() === 'EXPENSE'"
+          [class.text-fg-muted]="selectedType() !== 'EXPENSE'"
+          [class.hover:bg-tint-fill]="selectedType() !== 'EXPENSE'"
+        >
+          - SAÍDA
+        </button>
+      </div>
+    </div>
+
+    <!-- Campo: Descrição -->
+    <div>
+      <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+        DESCRIÇÃO
+      </label>
+      <input
+        formControlName="description"
+        type="text"
+        placeholder="Ex: Consultoria PJ, Supermercado..."
+        class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+        [class.border-fg]="form.get('description')?.invalid && form.get('description')?.touched"
+      />
+      @if (form.get('description')?.invalid && form.get('description')?.touched) {
+        <span class="mt-1 block text-micro uppercase text-fg">
+          ERRO // DESCRIÇÃO OBRIGATÓRIA (MÁX. 255 CARACTERES)
+        </span>
+      }
+    </div>
+
+    <!-- Campo: Valor & Data (Grid de 2 colunas) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+          VALOR (R$)
+        </label>
+        <input
+          formControlName="amount"
+          type="number"
+          step="0.01"
+          placeholder="0.00"
+          class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors tabular-nums"
+          [class.border-fg]="form.get('amount')?.invalid && form.get('amount')?.touched"
+        />
+        @if (form.get('amount')?.invalid && form.get('amount')?.touched) {
+          <span class="mt-1 block text-micro uppercase text-fg">
+            ERRO // VALOR DEVE SER MAIOR QUE ZERO
+          </span>
+        }
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+          DATA
+        </label>
+        <input
+          formControlName="transactionDate"
+          type="date"
+          class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+          [class.border-fg]="form.get('transactionDate')?.invalid && form.get('transactionDate')?.touched"
+        />
+        @if (form.get('transactionDate')?.invalid && form.get('transactionDate')?.touched) {
+          <span class="mt-1 block text-micro uppercase text-fg">
+            ERRO // DATA OBRIGATÓRIA
+          </span>
+        }
+      </div>
+    </div>
+
+    <!-- Campo: Categoria -->
+    <div>
+      <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+        CATEGORIA (OPCIONAL)
+      </label>
+      <input
+        formControlName="category"
+        type="text"
+        placeholder="Ex: Alimentação, Moradia, Serviços..."
+        class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+      />
+    </div>
+
+    <!-- Erro geral -->
+    @if (errorMessage()) {
+      <div class="border border-line-strong bg-surface-sunken p-2.5 text-micro uppercase text-fg">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    <!-- Botões de Ação -->
+    <div class="mt-2 flex items-center justify-end gap-2">
+      <button
+        obButton
+        variant="secondary"
+        size="md"
+        type="button"
+        (click)="cancelled.emit()"
+      >
+        CANCELAR
+      </button>
+
+      <button
+        obButton
+        variant="primary"
+        size="md"
+        type="submit"
+        [disabled]="isSubmitting()"
+      >
+        @if (isSubmitting()) {
+          [ CARREGANDO ]
+        } @else {
+          SALVAR TRANSAÇÃO
+        }
+      </button>
+    </div>
+  </form>
+</ob-panel>
