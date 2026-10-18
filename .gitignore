@@ -42,3 +42,9 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Local design prototypes and drafts
+/FIGMA_DESIGN_SYSTEM.md
+/prototype.html
+/design-tokens.json
+
