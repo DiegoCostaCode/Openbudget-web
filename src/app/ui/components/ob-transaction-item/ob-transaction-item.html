@@ -16,8 +16,11 @@
   </div>
 </div>
 
-<ob-money
-  [amount]="transaction().amount"
-  [variant]="isIncome() ? 'income' : 'expense'"
-  class="text-xs shrink-0"
-/>
+<div class="flex items-center gap-3 shrink-0">
+  <ob-money
+    [amount]="transaction().amount"
+    [variant]="isIncome() ? 'income' : 'expense'"
+    class="text-xs shrink-0"
+  />
+  <span class="text-micro uppercase text-fg-subtle">[ EDITAR ]</span>
+</div>

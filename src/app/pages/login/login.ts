@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, signal, inject } from '@angular/core';
 import { Auth } from '../../services/auth';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { ObButton } from '../../ui/primitives/ob-button/ob-button';
 import { ObPanel } from '../../ui/components/ob-panel/ob-panel';
 import { ObPanelBar } from '../../ui/components/ob-panel-bar/ob-panel-bar';
@@ -9,7 +9,7 @@ import { ObPanelBar } from '../../ui/components/ob-panel-bar/ob-panel-bar';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [ReactiveFormsModule, ObButton, ObPanel, ObPanelBar],
+  imports: [ReactiveFormsModule, RouterLink, ObButton, ObPanel, ObPanelBar],
   templateUrl: './login.html',
   styleUrl: './login.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -21,7 +21,7 @@ export class Login {
 
   form: FormGroup = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', [Validators.required, Validators.minLength(6)]],
   });
 
   errorMessage = signal<string | null>(null);

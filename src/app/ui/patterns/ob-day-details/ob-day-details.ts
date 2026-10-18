@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
-import { DaySnapshotDTO } from '../../../models/transactions';
+import { DaySnapshotDTO, TransactionDTO } from '../../../models/transactions';
 import { ObTransactionItem } from '../../components/ob-transaction-item/ob-transaction-item';
 import { ObButton } from '../../primitives/ob-button/ob-button';
 import { LucideAngularModule } from 'lucide-angular';
@@ -18,6 +18,7 @@ export class ObDayDetails {
   day = input.required<DaySnapshotDTO>();
 
   addTransaction = output<string>();
+  editTransaction = output<TransactionDTO>();
 
   protected txCount = computed(() => this.day().transactions?.length ?? 0);
 

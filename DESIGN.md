@@ -347,9 +347,10 @@ Indicador de status/seção. **Sempre quadrado.**
 ### 4.2 `ob-icon-box` — caixa de ícone
 
 ```
-flex size-7 shrink-0 items-center justify-center border border-line-faint bg-tint-fill
+flex size-7 shrink-0 items-center justify-center border transition-colors
 ```
-Ícone interno `size-3.5`: entrada `text-fg`, saída `text-fg-muted`.
+- **EXPENSE (saída):** `border-line-faint bg-tint-fill`, ícone interno `size-3.5 text-fg-muted` com traço 2.
+- **INCOME (entrada):** Alto contraste invertido: `border-accent bg-accent`, ícone interno `size-3.5 text-on-accent` com traço 2.5 (`strokeWidth="2.5"`).
 
 ### 4.3 `ob-badge` — etiqueta de tipo
 

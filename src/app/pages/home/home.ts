@@ -4,17 +4,19 @@ import {
   OnInit,
   ViewChild,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
 import { Transactions } from '../../services/transactions';
-import { DaySnapshotDTO } from '../../models/transactions';
+import { DaySnapshotDTO, TransactionDTO } from '../../models/transactions';
 import { ObAppHeader } from '../../ui/patterns/ob-app-header/ob-app-header';
 import { ObToolbar } from '../../ui/patterns/ob-toolbar/ob-toolbar';
 import { ObInsightsPanel } from '../../ui/patterns/ob-insights-panel/ob-insights-panel';
 import { ObLedger } from '../../ui/patterns/ob-ledger/ob-ledger';
 import { ObButton } from '../../ui/primitives/ob-button/ob-button';
 import { TransactionForm } from '../../components/transaction-form/transaction-form';
+import { RecurrenceModal } from '../../components/recurrence-modal/recurrence-modal';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
@@ -27,6 +29,7 @@ import { LucideAngularModule } from 'lucide-angular';
     ObLedger,
     ObButton,
     TransactionForm,
+    RecurrenceModal,
     LucideAngularModule,
   ],
   templateUrl: './home.html',
@@ -41,14 +44,27 @@ export class Home implements OnInit {
 
   days = signal<DaySnapshotDTO[]>([]);
   isLoading = signal(true);
-  activePeriod = signal<string>('12M');
+  activePeriod = signal<string>('30D');
 
   // Modal de Transação
   isModalOpen = signal(false);
   modalDate = signal<string | null>(null);
   modalType = signal<'INCOME' | 'EXPENSE'>('EXPENSE');
+  modalEntryMode = signal<'SINGLE' | 'RECURRING'>('SINGLE');
+  editingTransaction = signal<TransactionDTO | null>(null);
+
+  // Modal de Recorrências
+  isRecurrenceModalOpen = signal(false);
 
   private todayStr = this.getTodayString();
+
+  constructor() {
+    effect(() => {
+      // Reage automaticamente quando activePeriod() mudar
+      this.activePeriod();
+      this.loadData();
+    });
+  }
 
   protected currentBalance = computed(() => {
     const list = this.days();
@@ -100,13 +116,25 @@ export class Home implements OnInit {
     return this.minProjectedBalance() < 0 ? 'ALERTA // DÉFICIT' : 'ESTÁVEL';
   });
 
-  ngOnInit(): void {
-    this.loadData();
+  ngOnInit(): void {}
+
+  private getDaysForPeriod(period: string): number {
+    switch (period) {
+      case '30D':
+        return 30;
+      case '90D':
+        return 90;
+      case '12M':
+        return 365;
+      default:
+        return 30;
+    }
   }
 
   loadData(): void {
+    const days = this.getDaysForPeriod(this.activePeriod());
     this.isLoading.set(true);
-    this.transactionsService.generateView().subscribe({
+    this.transactionsService.generateView(days).subscribe({
       next: (projection) => {
         this.days.set(projection?.days || []);
         this.isLoading.set(false);
@@ -122,18 +150,55 @@ export class Home implements OnInit {
     this.ledgerComponent?.scrollToToday();
   }
 
-  openNewTransaction(type: 'INCOME' | 'EXPENSE' = 'EXPENSE', date: string | null = null): void {
+  openNewTransaction(
+    type: 'INCOME' | 'EXPENSE' = 'EXPENSE',
+    date: string | null = null,
+    entryMode: 'SINGLE' | 'RECURRING' = 'SINGLE'
+  ): void {
+    this.editingTransaction.set(null);
     this.modalType.set(type);
     this.modalDate.set(date || this.todayStr);
+    this.modalEntryMode.set(entryMode);
+    this.isModalOpen.set(true);
+  }
+
+  openEditTransaction(tx: TransactionDTO): void {
+    this.editingTransaction.set(tx);
+    this.modalType.set((tx.type?.toUpperCase() as 'INCOME' | 'EXPENSE') || 'EXPENSE');
+    this.modalDate.set(tx.transactionDate);
+    this.modalEntryMode.set('SINGLE');
     this.isModalOpen.set(true);
   }
 
   closeModal(): void {
     this.isModalOpen.set(false);
+    this.editingTransaction.set(null);
   }
 
   onTransactionSaved(): void {
     this.closeModal();
+    this.loadData();
+  }
+
+  onTransactionDeleted(): void {
+    this.closeModal();
+    this.loadData();
+  }
+
+  openRecurrenceModal(): void {
+    this.isRecurrenceModalOpen.set(true);
+  }
+
+  closeRecurrenceModal(): void {
+    this.isRecurrenceModalOpen.set(false);
+  }
+
+  onNewRecurrenceFromModal(): void {
+    this.closeRecurrenceModal();
+    this.openNewTransaction('EXPENSE', this.todayStr, 'RECURRING');
+  }
+
+  onRecurrenceChanged(): void {
     this.loadData();
   }
 

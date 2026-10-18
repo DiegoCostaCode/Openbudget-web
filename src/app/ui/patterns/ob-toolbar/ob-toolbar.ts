@@ -12,8 +12,9 @@ import { LucideAngularModule } from 'lucide-angular';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ObToolbar {
-  period = model<string>('12M');
+  period = model<string>('30D');
 
   goToToday = output<void>();
+  openRecurrences = output<void>();
   newTransaction = output<void>();
 }

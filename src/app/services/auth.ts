@@ -24,6 +24,10 @@ export class Auth {
     );
   }
 
+  register(dto: { name: string; email: string; password: string }): Observable<{ name: string; email: string }> {
+    return this.api.post<{ name: string; email: string }>(dto, 'users/');
+  }
+
   isAuthenticated() {
     return this.api.get('auth/').pipe(
       map(() => true),

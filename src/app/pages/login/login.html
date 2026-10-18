@@ -52,7 +52,7 @@
           />
           @if (form.get('password')?.invalid && form.get('password')?.touched) {
             <span class="mt-1 block text-micro uppercase text-fg">
-              ERRO // SENHA DEVE CONTER NO MÍNIMO 8 CARACTERES
+              ERRO // SENHA DEVE CONTER NO MÍNIMO 6 CARACTERES
             </span>
           }
         </div>
@@ -64,12 +64,12 @@
           </div>
         }
 
-        <!-- Botão de Ação -->
-        <div class="pt-2">
+        <!-- Botões de Ação: 1 Primary (ACESSAR CONTA) + 1 Secondary (CRIAR NOVA CONTA) -->
+        <div class="pt-2 flex flex-col gap-2">
           <button
             obButton
             variant="primary"
-            size="lg"
+            size="md"
             [block]="true"
             type="submit"
             [disabled]="isLoading()"
@@ -80,6 +80,15 @@
               ACESSAR CONTA
             }
           </button>
+          <a
+            routerLink="/register"
+            obButton
+            variant="secondary"
+            size="md"
+            [block]="true"
+          >
+            CRIAR NOVA CONTA
+          </a>
         </div>
       </form>
 

@@ -1,7 +1,7 @@
 <lucide-icon
   [name]="iconName()"
-  class="size-3.5"
-  [class.text-fg]="isIncome()"
+  class="size-3.5 transition-colors"
+  [class.text-on-accent]="isIncome()"
   [class.text-fg-muted]="!isIncome()"
-  [strokeWidth]="2"
+  [strokeWidth]="isIncome() ? 2.5 : 2"
 />

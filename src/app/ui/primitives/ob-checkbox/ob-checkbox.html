@@ -1,0 +1,67 @@
+@if (!readonly()) {
+  <button
+    type="button"
+    role="checkbox"
+    [attr.aria-checked]="checked()"
+    (click)="toggle()"
+    class="inline-flex items-center gap-2.5 text-xs text-fg-secondary hover:text-fg transition-colors cursor-pointer select-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+  >
+    <span
+      class="flex shrink-0 items-center justify-center border bg-surface-sunken transition-colors"
+      [class.size-4]="size() === 'md'"
+      [class.size-3]="size() === 'sm'"
+      [class.border-fg]="checked()"
+      [class.border-line-strong]="!checked()"
+    >
+      @if (checked()) {
+        <span
+          class="shrink-0 bg-fg"
+          [class.size-2]="size() === 'md'"
+          [class.size-1.5]="size() === 'sm'"
+        ></span>
+      }
+    </span>
+    @if (label()) {
+      <span
+        class="uppercase tracking-wider transition-colors"
+        [class.text-label]="size() === 'md'"
+        [class.text-micro]="size() === 'sm'"
+        [class.text-fg]="checked()"
+        [class.font-bold]="checked()"
+        [class.text-fg-muted]="!checked()"
+      >
+        {{ label() }}
+      </span>
+    }
+  </button>
+} @else {
+  <div class="inline-flex items-center gap-2 select-none" aria-live="polite">
+    <span
+      class="flex shrink-0 items-center justify-center border bg-surface-sunken transition-colors"
+      [class.size-4]="size() === 'md'"
+      [class.size-3]="size() === 'sm'"
+      [class.border-fg]="checked()"
+      [class.border-line-strong]="!checked()"
+    >
+      @if (checked()) {
+        <span
+          class="shrink-0 bg-fg"
+          [class.size-2]="size() === 'md'"
+          [class.size-1.5]="size() === 'sm'"
+        ></span>
+      }
+    </span>
+    @if (label()) {
+      <span
+        class="uppercase tracking-wider transition-colors"
+        [class.text-label]="size() === 'md'"
+        [class.text-micro]="size() === 'sm'"
+        [class.text-fg]="checked()"
+        [class.font-bold]="checked()"
+        [class.text-fg-subtle]="!checked()"
+      >
+        {{ label() }}
+      </span>
+    }
+  </div>
+}

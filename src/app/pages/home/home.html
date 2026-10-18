@@ -10,6 +10,7 @@
       class="hidden md:block shrink-0"
       [(period)]="activePeriod"
       (goToToday)="scrollToToday()"
+      (openRecurrences)="openRecurrenceModal()"
       (newTransaction)="openNewTransaction('EXPENSE')"
     />
 
@@ -35,23 +36,35 @@
         [days]="days()"
         [period]="activePeriod()"
         (addTransaction)="openNewTransaction('EXPENSE', $event)"
+        (editTransaction)="openEditTransaction($event)"
       />
     }
   </main>
 
   <!-- Barra Inferior Fixa de Ação (Apenas Mobile < md) -->
   <div class="md:hidden sticky bottom-0 z-40 block border-t border-line-strong bg-canvas p-3">
-    <button
-      obButton
-      variant="primary"
-      size="lg"
-      [block]="true"
-      type="button"
-      (click)="openNewTransaction('EXPENSE')"
-    >
-      <lucide-icon name="plus" class="size-4" [strokeWidth]="2.5" />
-      NOVA TRANSAÇÃO
-    </button>
+    <div class="flex items-center gap-2">
+      <button
+        obButton
+        variant="secondary"
+        size="lg"
+        type="button"
+        (click)="openRecurrenceModal()"
+      >
+        RECORRÊNCIAS
+      </button>
+      <button
+        obButton
+        variant="primary"
+        size="lg"
+        [block]="true"
+        type="button"
+        (click)="openNewTransaction('EXPENSE')"
+      >
+        <lucide-icon name="plus" class="size-4" [strokeWidth]="2.5" />
+        NOVA TRANSAÇÃO
+      </button>
+    </div>
   </div>
 
   <!-- ========================================== -->
@@ -69,10 +82,24 @@
         <app-transaction-form
           [initialDate]="modalDate()"
           [initialType]="modalType()"
+          [initialEntryMode]="modalEntryMode()"
+          [transaction]="editingTransaction()"
           (saved)="onTransactionSaved()"
+          (deleted)="onTransactionDeleted()"
           (cancelled)="closeModal()"
         />
       </div>
     </div>
+  }
+
+  <!-- ========================================== -->
+  <!-- MODAL DE RECORRÊNCIAS (GERENCIAMENTO)      -->
+  <!-- ========================================== -->
+  @if (isRecurrenceModalOpen()) {
+    <app-recurrence-modal
+      (closed)="closeRecurrenceModal()"
+      (createNewRecurrence)="onNewRecurrenceFromModal()"
+      (changed)="onRecurrenceChanged()"
+    />
   }
 </div>

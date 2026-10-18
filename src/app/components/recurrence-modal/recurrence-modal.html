@@ -1,0 +1,314 @@
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-canvas/90 font-mono"
+  (click)="closed.emit()"
+>
+  <div class="w-full max-w-2xl" (click)="$event.stopPropagation()">
+    <ob-panel variant="primary">
+      <ob-panel-bar
+        [title]="activeView() === 'LIST' ? 'RECORRÊNCIAS' : 'EDITAR RECORRÊNCIA'"
+        [meta]="activeView() === 'LIST' ? (recurrences().length + (recurrences().length === 1 ? ' ATIVA' : ' ATIVAS')) : 'PUT /RECURRENCE/{ID}'"
+        position="top"
+      />
+
+      <!-- VISÃO A: LISTA DE RECORRÊNCIAS -->
+      @if (activeView() === 'LIST') {
+        <div class="p-6 flex flex-col gap-4">
+          <div class="flex flex-col gap-2 max-h-[420px] overflow-y-auto">
+            @if (isLoading()) {
+              <div class="py-6 text-center text-fg-subtle text-xs">
+                [ CARREGANDO RECORRÊNCIAS ]
+              </div>
+            } @else if (recurrences().length === 0) {
+              <div class="py-6 text-center text-fg-faint text-xs">
+                // NENHUMA RECORRÊNCIA CADASTRADA
+              </div>
+            } @else {
+              @for (rec of recurrences(); track rec.id) {
+                <div
+                  (click)="openEdit(rec)"
+                  role="button"
+                  tabindex="0"
+                  class="flex items-center justify-between gap-3 border border-line-faint bg-surface p-3 transition-colors hover:border-line-strong cursor-pointer"
+                >
+                  <div class="flex items-center gap-3 min-w-0">
+                    <ob-icon-box [type]="rec.type" />
+                    <div class="min-w-0 truncate">
+                      <div class="flex items-center gap-2">
+                        <ob-badge>{{ getFrequencyLabel(rec.frequency) }}</ob-badge>
+                        <span
+                          class="block text-xs font-bold truncate"
+                          [class.text-fg]="rec.type === 'INCOME'"
+                          [class.text-fg-secondary]="rec.type !== 'INCOME'"
+                        >
+                          {{ rec.description }}
+                        </span>
+                      </div>
+                      <span class="mt-0.5 block text-micro uppercase text-fg-subtle truncate tabular-nums">
+                        {{ rec.category ? rec.category.name + ' // ' : '' }}INÍCIO: {{ formatDate(rec.startDate) }} // {{ rec.occurrences ? (rec.occurrences + ' OCORRÊNCIAS') : 'CONTÍNUA' }}
+                      </span>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 shrink-0">
+                    <ob-money [amount]="rec.amount" [variant]="rec.type === 'INCOME' ? 'income' : 'expense'" />
+                    <span class="text-micro uppercase text-fg-subtle">[ EDITAR ]</span>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+
+          <div class="flex items-center justify-between gap-2 border-t border-line-faint pt-4">
+            <button
+              type="button"
+              (click)="closed.emit()"
+              obButton
+              variant="secondary"
+              size="md"
+            >
+              FECHAR
+            </button>
+            <button
+              type="button"
+              (click)="createNewRecurrence.emit()"
+              obButton
+              variant="primary"
+              size="md"
+            >
+              <lucide-icon name="plus" class="size-4" [strokeWidth]="2.5" />
+              NOVA RECORRÊNCIA
+            </button>
+          </div>
+        </div>
+      }
+
+      <!-- VISÃO B: EDITAR / REMOVER RECORRÊNCIA -->
+      @if (activeView() === 'EDIT') {
+        <form [formGroup]="editForm" (ngSubmit)="submitEdit()" class="p-6 flex flex-col gap-4">
+          <!-- Tipo (INCOME / EXPENSE) -->
+          <div>
+            <span class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+              TIPO DE MOVIMENTAÇÃO
+            </span>
+            <div class="inline-flex w-full border border-line-strong bg-surface-sunken">
+              <button
+                type="button"
+                (click)="setEditType('INCOME')"
+                class="flex-1 px-4 py-2 text-xs border-r border-line-strong transition-colors uppercase cursor-pointer text-center"
+                [class.bg-accent]="selectedEditType() === 'INCOME'"
+                [class.font-bold]="selectedEditType() === 'INCOME'"
+                [class.text-on-accent]="selectedEditType() === 'INCOME'"
+                [class.text-fg-muted]="selectedEditType() !== 'INCOME'"
+                [class.hover:bg-tint-fill]="selectedEditType() !== 'INCOME'"
+                [class.hover:text-fg]="selectedEditType() !== 'INCOME'"
+              >
+                + ENTRADA
+              </button>
+              <button
+                type="button"
+                (click)="setEditType('EXPENSE')"
+                class="flex-1 px-4 py-2 text-xs transition-colors uppercase cursor-pointer text-center"
+                [class.bg-accent]="selectedEditType() === 'EXPENSE'"
+                [class.font-bold]="selectedEditType() === 'EXPENSE'"
+                [class.text-on-accent]="selectedEditType() === 'EXPENSE'"
+                [class.text-fg-muted]="selectedEditType() !== 'EXPENSE'"
+                [class.hover:bg-tint-fill]="selectedEditType() !== 'EXPENSE'"
+                [class.hover:text-fg]="selectedEditType() !== 'EXPENSE'"
+              >
+                - SAÍDA
+              </button>
+            </div>
+          </div>
+
+          <!-- Descrição -->
+          <div>
+            <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+              DESCRIÇÃO
+            </label>
+            <input
+              formControlName="description"
+              type="text"
+              maxlength="255"
+              required
+              class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg outline-none focus:border-fg transition-colors"
+              [class.border-fg]="editForm.get('description')?.invalid && editForm.get('description')?.touched"
+            />
+            @if (editForm.get('description')?.invalid && editForm.get('description')?.touched) {
+              <span class="mt-1 block text-micro uppercase text-fg">
+                ERRO // DESCRIÇÃO OBRIGATÓRIA (MÁX. 255 CARACTERES)
+              </span>
+            }
+          </div>
+
+          <!-- Valor e Data Inicial -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+                VALOR (R$)
+              </label>
+              <input
+                formControlName="amount"
+                type="text"
+                inputmode="numeric"
+                obCurrencyInput
+                placeholder="0,00"
+                class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors tabular-nums"
+                [class.border-fg]="editForm.get('amount')?.invalid && editForm.get('amount')?.touched"
+              />
+              @if (editForm.get('amount')?.invalid && editForm.get('amount')?.touched) {
+                <span class="mt-1 block text-micro uppercase text-fg">
+                  ERRO // VALOR DEVE SER MAIOR QUE ZERO
+                </span>
+              }
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+                DATA DE INÍCIO
+              </label>
+              <input
+                formControlName="startDate"
+                type="date"
+                required
+                class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg outline-none focus:border-fg transition-colors tabular-nums"
+                [class.border-fg]="editForm.get('startDate')?.invalid && editForm.get('startDate')?.touched"
+              />
+              @if (editForm.get('startDate')?.invalid && editForm.get('startDate')?.touched) {
+                <span class="mt-1 block text-micro uppercase text-fg">
+                  ERRO // DATA DE INÍCIO OBRIGATÓRIA
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Frequência e Ocorrências -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+                FREQUÊNCIA
+              </label>
+              <select
+                formControlName="frequency"
+                required
+                class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg outline-none focus:border-fg transition-colors uppercase"
+              >
+                <option value="MONTHLY">MENSAL</option>
+                <option value="WEEKLY">SEMANAL</option>
+                <option value="DAILY">DIÁRIA</option>
+                <option value="YEARLY">ANUAL</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+                OCORRÊNCIAS
+              </label>
+              <input
+                formControlName="occurrences"
+                type="number"
+                min="2"
+                max="999"
+                step="1"
+                placeholder="Vazio = contínua (sem fim)"
+                class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors tabular-nums"
+                [class.border-fg]="editForm.get('occurrences')?.invalid && editForm.get('occurrences')?.touched"
+              />
+              @if (editForm.get('occurrences')?.invalid && editForm.get('occurrences')?.touched) {
+                <span class="mt-1 block text-micro uppercase text-fg">
+                  ERRO // ENTRE 2 E 999 VEZES (OU VAZIO PARA CONTÍNUA)
+                </span>
+              }
+            </div>
+          </div>
+
+          <!-- Categoria -->
+          <div>
+            <div class="mb-1.5 flex items-center justify-between">
+              <label class="text-label uppercase tracking-wider text-fg-muted">
+                CATEGORIA (OPCIONAL)
+              </label>
+              <button
+                type="button"
+                (click)="openNewCategoryModal()"
+                obButton
+                variant="ghost"
+                size="xs"
+              >
+                [ + NOVA CATEGORIA ]
+              </button>
+            </div>
+            <select
+              formControlName="category"
+              class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg outline-none focus:border-fg transition-colors uppercase"
+            >
+              <option value="">// SEM CATEGORIA</option>
+              @for (cat of categories(); track cat.id) {
+                <option [value]="cat.name">{{ cat.name }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Erro geral -->
+          @if (errorMessage()) {
+            <div class="border border-line-strong bg-surface-sunken p-2.5 text-micro uppercase text-fg">
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <!-- Ações de Edição/Remoção de Recorrência -->
+          <div class="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-line-faint pt-4">
+            <button
+              type="button"
+              (click)="requestDelete()"
+              obButton
+              variant="ghost"
+              size="md"
+              [disabled]="isSubmitting()"
+              class="text-fg-muted hover:text-fg"
+            >
+              @if (confirmingDelete()) {
+                [ CONFIRMAR EXCLUSÃO? ]
+              } @else {
+                [ EXCLUIR RECORRÊNCIA ]
+              }
+            </button>
+
+            <div class="flex items-center gap-2 ml-auto">
+              <button
+                type="button"
+                (click)="backToList()"
+                obButton
+                variant="secondary"
+                size="md"
+              >
+                VOLTAR
+              </button>
+              <button
+                type="submit"
+                obButton
+                variant="primary"
+                size="md"
+                [disabled]="isSubmitting()"
+              >
+                @if (isSubmitting()) {
+                  [ ATUALIZANDO... ]
+                } @else {
+                  ATUALIZAR RECORRÊNCIA
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+      }
+
+      <ob-panel-bar title="SINCRONIZA TRANSAÇÕES FUTURAS" meta="/RECURRENCE/" position="bottom" />
+    </ob-panel>
+  </div>
+</div>
+
+<!-- Modal Sobreposto de Criação de Categoria -->
+@if (showCategoryModal()) {
+  <app-category-form
+    (saved)="onCategorySaved($event)"
+    (cancelled)="onCategoryCancelled()"
+  />
+}

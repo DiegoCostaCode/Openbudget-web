@@ -8,7 +8,11 @@ import { LucideAngularModule } from 'lucide-angular';
   templateUrl: './ob-icon-box.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: {
-    class: 'flex size-7 shrink-0 items-center justify-center border border-line-faint bg-tint-fill',
+    class: 'flex size-7 shrink-0 items-center justify-center border transition-colors',
+    '[class.border-accent]': 'isIncome()',
+    '[class.bg-accent]': 'isIncome()',
+    '[class.border-line-faint]': '!isIncome()',
+    '[class.bg-tint-fill]': '!isIncome()',
   },
 })
 export class ObIconBox {

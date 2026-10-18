@@ -1,0 +1,133 @@
+<div class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <!-- Logomarca & Wordmark Central -->
+    <div class="mb-6 flex items-center justify-center gap-3">
+      <div
+        class="flex size-8 shrink-0 items-center justify-center bg-accent text-base font-bold text-on-accent font-mono"
+      >
+        OB
+      </div>
+      <span class="text-base font-bold uppercase tracking-tight text-fg font-mono">
+        OPENBUDGET
+      </span>
+    </div>
+
+    <!-- Container Principal do Formulário -->
+    <ob-panel variant="primary">
+      <ob-panel-bar title="NOVO USUÁRIO" meta="CADASTRO" position="top" />
+
+      <form [formGroup]="form" (ngSubmit)="register()" class="p-6 flex flex-col gap-4 font-mono" novalidate>
+        <!-- Nome: 3 a 50 caracteres -->
+        <div>
+          <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+            NOME
+          </label>
+          <input
+            formControlName="name"
+            type="text"
+            placeholder="Ex: Diego Costa"
+            autocomplete="name"
+            class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+            [class.border-fg]="form.get('name')?.invalid && form.get('name')?.touched"
+          />
+          @if (form.get('name')?.invalid && form.get('name')?.touched) {
+            <span class="mt-1 block text-micro uppercase text-fg">
+              ERRO // NOME DEVE TER ENTRE 3 E 50 CARACTERES
+            </span>
+          }
+        </div>
+
+        <!-- Email: @Email -->
+        <div>
+          <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+            EMAIL
+          </label>
+          <input
+            formControlName="email"
+            type="email"
+            placeholder="usuario@dominio.com"
+            autocomplete="email"
+            class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+            [class.border-fg]="form.get('email')?.invalid && form.get('email')?.touched"
+          />
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <span class="mt-1 block text-micro uppercase text-fg">
+              ERRO // EMAIL INVÁLIDO OU OBRIGATÓRIO
+            </span>
+          }
+        </div>
+
+        <!-- Senha: >= 6 chars, maiúscula + minúscula + número -->
+        <div>
+          <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+            SENHA
+          </label>
+          <input
+            formControlName="password"
+            type="password"
+            (input)="onPasswordInput($event)"
+            placeholder="••••••••"
+            autocomplete="new-password"
+            class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+            [class.border-fg]="form.get('password')?.invalid && form.get('password')?.touched"
+          />
+
+          <!-- Checkboxes de requisitos da senha (menores, um abaixo do outro, sem borda ao redor) -->
+          <div class="mt-2 flex flex-col gap-1.5">
+            <ob-checkbox [readonly]="true" size="sm" [checked]="hasMinLength()" label="MÍNIMO 6 CARACTERES" />
+            <ob-checkbox [readonly]="true" size="sm" [checked]="hasUpper()" label="LETRA MAIÚSCULA" />
+            <ob-checkbox [readonly]="true" size="sm" [checked]="hasLower()" label="LETRA MINÚSCULA" />
+            <ob-checkbox [readonly]="true" size="sm" [checked]="hasNumber()" label="PELO MENOS 1 NÚMERO" />
+          </div>
+
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <span class="mt-1.5 block text-micro uppercase text-fg">
+              ERRO // ATENDA A TODOS OS REQUISITOS DE SENHA ACIMA
+            </span>
+          }
+        </div>
+
+        @if (successMessage()) {
+          <div class="border border-line-strong bg-surface-sunken p-2.5 text-micro uppercase text-fg">
+            {{ successMessage() }}
+          </div>
+        }
+
+        @if (errorMessage()) {
+          <div class="border border-line-strong bg-surface-sunken p-2.5 text-micro uppercase text-fg">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <!-- Ações: 1 Primary (CRIAR CONTA) + 1 Secondary (JÁ TENHO CONTA) -->
+        <div class="pt-2 flex flex-col gap-2">
+          <button
+            obButton
+            variant="primary"
+            size="md"
+            [block]="true"
+            type="submit"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              [ CRIANDO... ]
+            } @else {
+              CRIAR CONTA
+            }
+          </button>
+          <a
+            routerLink="/login"
+            obButton
+            variant="secondary"
+            size="md"
+            [block]="true"
+          >
+            JÁ TENHO CONTA
+          </a>
+        </div>
+      </form>
+
+      <ob-panel-bar title="STATUS" meta="PROTEGIDO // HTTPONLY" position="bottom" />
+    </ob-panel>
+  </div>
+</div>

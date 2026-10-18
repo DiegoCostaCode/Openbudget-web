@@ -52,6 +52,7 @@
               <ob-day-details
                 [day]="day"
                 (addTransaction)="addTransaction.emit($event)"
+                (editTransaction)="editTransaction.emit($event)"
               />
             </div>
           }

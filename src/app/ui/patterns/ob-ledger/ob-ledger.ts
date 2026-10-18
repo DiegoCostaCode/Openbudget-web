@@ -13,7 +13,7 @@ import {
   signal,
   AfterViewInit,
 } from '@angular/core';
-import { DaySnapshotDTO } from '../../../models/transactions';
+import { DaySnapshotDTO, TransactionDTO } from '../../../models/transactions';
 import { ObPanel } from '../../components/ob-panel/ob-panel';
 import { ObPanelBar } from '../../components/ob-panel-bar/ob-panel-bar';
 import { ObLedgerRow } from '../../components/ob-ledger-row/ob-ledger-row';
@@ -32,9 +32,10 @@ import Scrollbar from 'smooth-scrollbar';
 })
 export class ObLedger implements OnInit, AfterViewInit, OnDestroy {
   days = input<DaySnapshotDTO[]>([]);
-  period = input<string>('12M');
+  period = input<string>('30D');
 
   addTransaction = output<string>();
+  editTransaction = output<TransactionDTO>();
 
   @ViewChild('scrollContainer')
   scrollContainer!: ElementRef<HTMLDivElement>;
@@ -56,7 +57,7 @@ export class ObLedger implements OnInit, AfterViewInit, OnDestroy {
   private todayStr = this.getTodayString();
 
   protected periodLabel = computed(() => {
-    return this.period() || '365D';
+    return this.period() || '30D';
   });
 
   protected syncRangeLabel = computed(() => {

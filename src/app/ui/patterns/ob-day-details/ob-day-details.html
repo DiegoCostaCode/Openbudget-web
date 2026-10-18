@@ -16,7 +16,7 @@
     </div>
   } @else {
     @for (tx of day().transactions; track tx.id) {
-      <ob-transaction-item [transaction]="tx" />
+      <ob-transaction-item [transaction]="tx" (selected)="editTransaction.emit($event)" />
     }
   }
 </div>

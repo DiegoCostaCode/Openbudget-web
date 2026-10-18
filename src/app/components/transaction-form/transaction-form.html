@@ -1,13 +1,17 @@
 <ob-panel variant="primary">
-  <ob-panel-bar title="NOVA TRANSAÇÃO" meta="REGISTRO MANUAL" position="top" />
+  <ob-panel-bar
+    [title]="isEditMode() ? 'EDITAR TRANSAÇÃO' : (isRecurring() ? 'NOVA RECORRÊNCIA' : 'NOVA TRANSAÇÃO')"
+    [meta]="isEditMode() ? 'PUT /TRANSACTION/{ID}' : (isRecurring() ? 'POST /RECURRENCE/' : 'POST /TRANSACTION/')"
+    position="top"
+  />
 
   <form [formGroup]="form" (ngSubmit)="submit()" class="p-6 flex flex-col gap-4 font-mono">
-    <!-- Seletor de Tipo (INCOME / EXPENSE) -->
+    <!-- Seletor de Tipo (INCOME vs EXPENSE) -->
     <div>
       <span class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
         TIPO DE MOVIMENTAÇÃO
       </span>
-      <div class="inline-flex border border-line-strong bg-surface-sunken w-full">
+      <div class="inline-flex w-full border border-line-strong bg-surface-sunken" role="radiogroup">
         <button
           type="button"
           (click)="setType('INCOME')"
@@ -17,6 +21,7 @@
           [class.text-on-accent]="selectedType() === 'INCOME'"
           [class.text-fg-muted]="selectedType() !== 'INCOME'"
           [class.hover:bg-tint-fill]="selectedType() !== 'INCOME'"
+          [class.hover:text-fg]="selectedType() !== 'INCOME'"
         >
           + ENTRADA
         </button>
@@ -29,13 +34,14 @@
           [class.text-on-accent]="selectedType() === 'EXPENSE'"
           [class.text-fg-muted]="selectedType() !== 'EXPENSE'"
           [class.hover:bg-tint-fill]="selectedType() !== 'EXPENSE'"
+          [class.hover:text-fg]="selectedType() !== 'EXPENSE'"
         >
           - SAÍDA
         </button>
       </div>
     </div>
 
-    <!-- Campo: Descrição -->
+    <!-- Campo: Descrição (máx 255) -->
     <div>
       <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
         DESCRIÇÃO
@@ -43,6 +49,7 @@
       <input
         formControlName="description"
         type="text"
+        maxlength="255"
         placeholder="Ex: Consultoria PJ, Supermercado..."
         class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
         [class.border-fg]="form.get('description')?.invalid && form.get('description')?.touched"
@@ -54,7 +61,7 @@
       }
     </div>
 
-    <!-- Campo: Valor & Data (Grid de 2 colunas) -->
+    <!-- Grid: Valor (R$) & Data (ou Data de Início quando recorrente) -->
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
@@ -62,9 +69,10 @@
         </label>
         <input
           formControlName="amount"
-          type="number"
-          step="0.01"
-          placeholder="0.00"
+          type="text"
+          inputmode="numeric"
+          obCurrencyInput
+          placeholder="0,00"
           class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors tabular-nums"
           [class.border-fg]="form.get('amount')?.invalid && form.get('amount')?.touched"
         />
@@ -77,12 +85,12 @@
 
       <div>
         <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
-          DATA
+          {{ isRecurring() && !isEditMode() ? 'DATA DE INÍCIO' : 'DATA' }}
         </label>
         <input
           formControlName="transactionDate"
           type="date"
-          class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+          class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors tabular-nums"
           [class.border-fg]="form.get('transactionDate')?.invalid && form.get('transactionDate')?.touched"
         />
         @if (form.get('transactionDate')?.invalid && form.get('transactionDate')?.touched) {
@@ -93,17 +101,82 @@
       </div>
     </div>
 
-    <!-- Campo: Categoria -->
+    <!-- Primitivo ob-checkbox: "Vai acontecer mais vezes" (apenas quando !isEditMode()) -->
+    @if (!isEditMode()) {
+      <div class="pt-0.5">
+        <ob-checkbox
+          [(checked)]="isRecurring"
+          label="VAI ACONTECER MAIS VEZES"
+        />
+      </div>
+    }
+
+    <!-- Campos exclusivos de Recorrência (quando isRecurring() for true e !isEditMode()) -->
+    @if (isRecurring() && !isEditMode()) {
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-line-faint pt-4">
+        <div>
+          <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+            FREQUÊNCIA
+          </label>
+          <select
+            formControlName="frequency"
+            class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg outline-none focus:border-fg transition-colors uppercase"
+          >
+            <option value="MONTHLY">MENSAL</option>
+            <option value="WEEKLY">SEMANAL</option>
+            <option value="DAILY">DIÁRIA</option>
+            <option value="YEARLY">ANUAL</option>
+          </select>
+        </div>
+        <div>
+          <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+            OCORRÊNCIAS
+          </label>
+          <input
+            formControlName="occurrences"
+            type="number"
+            min="2"
+            max="999"
+            step="1"
+            placeholder="Vazio = contínua (sem fim)"
+            class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors tabular-nums"
+            [class.border-fg]="form.get('occurrences')?.invalid && form.get('occurrences')?.touched"
+          />
+          @if (form.get('occurrences')?.invalid && form.get('occurrences')?.touched) {
+            <span class="mt-1 block text-micro uppercase text-fg">
+              ERRO // ENTRE 2 E 999 VEZES (OU VAZIO PARA CONTÍNUA)
+            </span>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Campo: Categoria (Select GET /category/ + botão que abre Modal próprio de Nova Categoria) -->
     <div>
-      <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
-        CATEGORIA (OPCIONAL)
-      </label>
-      <input
+      <div class="mb-1.5 flex items-center justify-between">
+        <label class="text-label uppercase tracking-wider text-fg-muted">
+          CATEGORIA (OPCIONAL)
+        </label>
+        <button
+          type="button"
+          (click)="openNewCategoryModal()"
+          obButton
+          variant="ghost"
+          size="xs"
+        >
+          [ + NOVA CATEGORIA ]
+        </button>
+      </div>
+
+      <select
         formControlName="category"
-        type="text"
-        placeholder="Ex: Alimentação, Moradia, Serviços..."
-        class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
-      />
+        class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg outline-none focus:border-fg transition-colors uppercase"
+      >
+        <option value="">// SEM CATEGORIA</option>
+        @for (cat of categories(); track cat.id) {
+          <option [value]="cat.name">{{ cat.name }}</option>
+        }
+      </select>
     </div>
 
     <!-- Erro geral -->
@@ -113,31 +186,62 @@
       </div>
     }
 
-    <!-- Botões de Ação -->
-    <div class="mt-2 flex items-center justify-end gap-2">
-      <button
-        obButton
-        variant="secondary"
-        size="md"
-        type="button"
-        (click)="cancelled.emit()"
-      >
-        CANCELAR
-      </button>
-
-      <button
-        obButton
-        variant="primary"
-        size="md"
-        type="submit"
-        [disabled]="isSubmitting()"
-      >
-        @if (isSubmitting()) {
-          [ CARREGANDO ]
-        } @else {
-          SALVAR TRANSAÇÃO
+    <!-- Rodapé de Ações do Modal (Máx 1 primary) -->
+    <div class="mt-2 flex flex-wrap items-center justify-between gap-2 border-t border-line-faint pt-4">
+      <!-- Esquerda: Botão de Remover com confirmação em 2 cliques (apenas em modo de Edição) -->
+      <div>
+        @if (isEditMode()) {
+          <button
+            type="button"
+            (click)="requestDelete()"
+            obButton
+            variant="ghost"
+            size="md"
+            [disabled]="isSubmitting()"
+            class="text-fg-muted hover:text-fg"
+          >
+            @if (confirmingDelete()) {
+              [ CONFIRMAR EXCLUSÃO? ]
+            } @else {
+              [ EXCLUIR ]
+            }
+          </button>
         }
-      </button>
+      </div>
+
+      <!-- Direita: Cancelar + Salvar -->
+      <div class="flex items-center gap-2 ml-auto">
+        <button
+          type="button"
+          (click)="cancelled.emit()"
+          obButton
+          variant="secondary"
+          size="md"
+        >
+          CANCELAR
+        </button>
+        <button
+          type="submit"
+          obButton
+          variant="primary"
+          size="md"
+          [disabled]="isSubmitting()"
+        >
+          @if (isSubmitting()) {
+            [ SALVANDO... ]
+          } @else {
+            {{ isEditMode() ? 'ATUALIZAR TRANSAÇÃO' : (isRecurring() ? 'SALVAR RECORRÊNCIA' : 'SALVAR TRANSAÇÃO') }}
+          }
+        </button>
+      </div>
     </div>
   </form>
 </ob-panel>
+
+<!-- Modal de Criação de Categoria Sobreposto -->
+@if (showCategoryModal()) {
+  <app-category-form
+    (saved)="onCategorySaved($event)"
+    (cancelled)="onCategoryCancelled()"
+  />
+}
