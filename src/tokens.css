@@ -1,0 +1,61 @@
+/* ==========================================================================
+   OpenBudget Design Tokens — Technical Brutalism (Titanium & Obsidian)
+   Fonte da verdade: DESIGN.md (§2 e §3)
+   Configuração CSS-first do Tailwind CSS v4 (@theme)
+   ========================================================================== */
+
+@theme {
+  /* Reset estrito (DESIGN.md §3): desabilita cores, raios e sombras padrão do Tailwind,
+     permitindo apenas os tokens oficiais do Design System */
+  --color-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+  --inset-shadow-*: initial;
+  --drop-shadow-*: initial;
+
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  /* Tipografia (DESIGN.md §2.3) */
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --text-micro: 0.625rem;
+  --text-micro--line-height: 0.875rem;
+  --text-label: 0.6875rem;
+  --text-label--line-height: 1rem;
+
+  /* Superfícies (DESIGN.md §2.2) */
+  --color-canvas: #050507;
+  --color-surface: #0A0A0E;
+  --color-surface-sunken: #050507;
+  --color-surface-hover: #16161D;
+
+  /* Tints — sobreposição branca translúcida (DESIGN.md §2.2) */
+  --color-tint-hover: rgb(255 255 255 / 0.03);
+  --color-tint-selected: rgb(255 255 255 / 0.04);
+  --color-tint-fill: rgb(255 255 255 / 0.05);
+  --color-tint-strong: rgb(255 255 255 / 0.10);
+
+  /* Linhas — bordas e divisores (DESIGN.md §2.2) */
+  --color-line-faint: rgb(255 255 255 / 0.10);
+  --color-line: rgb(255 255 255 / 0.15);
+  --color-line-strong: rgb(255 255 255 / 0.20);
+  --color-line-heavy: rgb(255 255 255 / 0.30);
+
+  /* Texto / Foreground (DESIGN.md §2.2) */
+  --color-fg: #FFFFFF;
+  --color-fg-secondary: #F4F4F6;
+  --color-fg-tertiary: #D4D4D8;
+  --color-fg-muted: #A1A1AA;
+  --color-fg-subtle: #71717A;
+  --color-fg-faint: #52525B;
+
+  /* Ação / Accent (DESIGN.md §2.2) */
+  --color-accent: #FFFFFF;
+  --color-accent-hover: #D4D4D8;
+  --color-on-accent: #050507;
+
+  /* Utilitários de Scrollbar (DESIGN.md §2.2) */
+  --color-scroll-thumb: #272733;
+  --color-scroll-thumb-hover: #52525B;
+}
