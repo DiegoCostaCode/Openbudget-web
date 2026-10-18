@@ -1,7 +1,78 @@
-<section class="flex w-screen h-screen items-center justify-center">
+<!-- Shell Principal do Dashboard (Unificado Desktop & Mobile via Media Queries) -->
+<div class="min-h-dvh md:h-dvh md:overflow-hidden w-full flex flex-col text-fg-secondary font-mono">
+  <!-- Header Superior Responsivo -->
+  <ob-app-header [period]="activePeriod()" />
 
-    <div id="tabela" class="w-1/2">
-        <app-tabela-registros></app-tabela-registros>
+  <!-- Área de Conteúdo Centralizada Ledger-Centric -->
+  <main class="mx-auto flex flex-1 md:min-h-0 w-full max-w-7xl flex-col gap-3 md:gap-4 p-4 md:p-6 md:overflow-hidden">
+    <!-- Toolbar de Controles (Visível no Desktop >= md) -->
+    <ob-toolbar
+      class="hidden md:block shrink-0"
+      [(period)]="activePeriod"
+      (goToToday)="scrollToToday()"
+      (newTransaction)="openNewTransaction('EXPENSE')"
+    />
+
+    <!-- Painel de Resumo / Insights (Card Hero no Mobile, Barra Expansível no Desktop) -->
+    <ob-insights-panel
+      class="shrink-0"
+      [currentBalance]="currentBalance()"
+      [totalIncome]="totalIncome()"
+      [totalExpense]="totalExpense()"
+      [minProjectedBalance]="minProjectedBalance()"
+      [statusText]="statusText()"
+      (createIncome)="openNewTransaction('INCOME')"
+      (createExpense)="openNewTransaction('EXPENSE')"
+    />
+
+    <!-- Extrato Principal Responsivo (O Protagonista) -->
+    @if (isLoading()) {
+      <div class="border border-line-faint md:border-line-strong bg-surface p-8 md:p-12 text-center text-fg-subtle uppercase text-xs">
+        [ CARREGANDO EXTRATO ]
+      </div>
+    } @else {
+      <ob-ledger
+        [days]="days()"
+        [period]="activePeriod()"
+        (addTransaction)="openNewTransaction('EXPENSE', $event)"
+      />
+    }
+  </main>
+
+  <!-- Barra Inferior Fixa de Ação (Apenas Mobile < md) -->
+  <div class="md:hidden sticky bottom-0 z-40 block border-t border-line-strong bg-canvas p-3">
+    <button
+      obButton
+      variant="primary"
+      size="lg"
+      [block]="true"
+      type="button"
+      (click)="openNewTransaction('EXPENSE')"
+    >
+      <lucide-icon name="plus" class="size-4" [strokeWidth]="2.5" />
+      NOVA TRANSAÇÃO
+    </button>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL DE TRANSAÇÃO (TÉCNICO / BRUTALISTA)  -->
+  <!-- ========================================== -->
+  @if (isModalOpen()) {
+    <div
+      class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-canvas/90"
+      (click)="closeModal()"
+    >
+      <div
+        class="w-full max-w-lg"
+        (click)="$event.stopPropagation()"
+      >
+        <app-transaction-form
+          [initialDate]="modalDate()"
+          [initialType]="modalType()"
+          (saved)="onTransactionSaved()"
+          (cancelled)="closeModal()"
+        />
+      </div>
     </div>
-
-</section>
+  }
+</div>

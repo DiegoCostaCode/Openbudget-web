@@ -1,16 +1,89 @@
-<div class="flex flex-col justify-center items-center h-screen">
-
-    <h1 class="text-2xl w-full max-w-lg font-bold text-start mb-4">Welcome back!</h1>
-
-    <div [formGroup]="form" class="flex flex-col min-w-lg max-w-lg gap-4">
-            
-        <input formControlName="email" type="email" placeholder="financialhealth@example.com" class="border p-2 rounded-lg w-full" />
-        <input formControlName="password" type="password" placeholder="Your secret password" class="border p-2 rounded-lg w-full" />
-
-        <button 
-        (click)="login()"
-        [disabled]="form.invalid"
-        class="bg-blue-500 text-white p-2 w-full rounded-lg cursor-pointer" >Lets go</button>
+<div class="min-h-screen w-full flex flex-col items-center justify-center p-4">
+  <div class="w-full max-w-md">
+    <!-- Logomarca & Wordmark Central -->
+    <div class="mb-6 flex items-center justify-center gap-3">
+      <div
+        class="flex size-8 shrink-0 items-center justify-center bg-accent text-base font-bold text-on-accent font-mono"
+      >
+        OB
+      </div>
+      <span class="text-base font-bold uppercase tracking-tight text-fg font-mono">
+        OPENBUDGET
+      </span>
     </div>
-    
+
+    <!-- Container Principal do Formulário -->
+    <ob-panel variant="primary">
+      <ob-panel-bar title="AUTENTICAÇÃO" meta="SESSÃO SEGURA" position="top" />
+
+      <form [formGroup]="form" (ngSubmit)="login()" class="p-6 flex flex-col gap-4 font-mono">
+        <!-- Campo: Email -->
+        <div>
+          <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+            EMAIL
+          </label>
+          <input
+            formControlName="email"
+            type="email"
+            placeholder="usuario@dominio.com"
+            autocomplete="email"
+            class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+            [class.border-fg]="form.get('email')?.invalid && form.get('email')?.touched"
+          />
+          @if (form.get('email')?.invalid && form.get('email')?.touched) {
+            <span class="mt-1 block text-micro uppercase text-fg">
+              ERRO // EMAIL INVÁLIDO OU OBRIGATÓRIO
+            </span>
+          }
+        </div>
+
+        <!-- Campo: Senha -->
+        <div>
+          <label class="mb-1.5 block text-label uppercase tracking-wider text-fg-muted">
+            SENHA
+          </label>
+          <input
+            formControlName="password"
+            type="password"
+            placeholder="••••••••"
+            autocomplete="current-password"
+            class="w-full border border-line-strong bg-surface-sunken px-3 py-2 text-xs text-fg placeholder:text-fg-subtle outline-none focus:border-fg transition-colors"
+            [class.border-fg]="form.get('password')?.invalid && form.get('password')?.touched"
+          />
+          @if (form.get('password')?.invalid && form.get('password')?.touched) {
+            <span class="mt-1 block text-micro uppercase text-fg">
+              ERRO // SENHA DEVE CONTER NO MÍNIMO 8 CARACTERES
+            </span>
+          }
+        </div>
+
+        <!-- Mensagem de Erro Geral -->
+        @if (errorMessage()) {
+          <div class="border border-line-strong bg-surface-sunken p-2.5 text-micro uppercase text-fg">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <!-- Botão de Ação -->
+        <div class="pt-2">
+          <button
+            obButton
+            variant="primary"
+            size="lg"
+            [block]="true"
+            type="submit"
+            [disabled]="isLoading()"
+          >
+            @if (isLoading()) {
+              [ CARREGANDO ]
+            } @else {
+              ACESSAR CONTA
+            }
+          </button>
+        </div>
+      </form>
+
+      <ob-panel-bar title="STATUS" meta="PROTEGIDO // HTTPONLY" position="bottom" />
+    </ob-panel>
+  </div>
 </div>
