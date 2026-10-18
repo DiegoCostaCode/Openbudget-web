@@ -3,9 +3,14 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
+    "config:env": "node scripts/set-env.mjs",
+    "prestart": "npm run config:env",
     "start": "ng serve",
+    "prebuild": "npm run config:env",
     "build": "ng build",
+    "prewatch": "npm run config:env",
     "watch": "ng build --watch --configuration development",
+    "pretest": "npm run config:env",
     "test": "ng test"
   },
   "private": true,
