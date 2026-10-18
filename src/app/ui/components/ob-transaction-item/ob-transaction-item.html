@@ -1,0 +1,23 @@
+<div class="flex items-center gap-3 min-w-0">
+  <ob-icon-box [type]="transaction().type" />
+  <div class="min-w-0 truncate">
+    <span
+      class="block text-xs font-bold truncate"
+      [class.text-fg]="isIncome()"
+      [class.text-fg-secondary]="!isIncome()"
+    >
+      {{ transaction().description }}
+    </span>
+    @if (transaction().category?.name) {
+      <span class="block text-micro uppercase text-fg-subtle truncate">
+        {{ transaction().category?.name }}
+      </span>
+    }
+  </div>
+</div>
+
+<ob-money
+  [amount]="transaction().amount"
+  [variant]="isIncome() ? 'income' : 'expense'"
+  class="text-xs shrink-0"
+/>

@@ -1,0 +1,70 @@
+<!-- Rótulo de seção visível apenas no mobile -->
+<span class="block md:hidden text-micro uppercase tracking-wider text-fg-subtle mb-1 pt-2">
+  PRÓXIMOS DIAS
+</span>
+
+<ob-panel
+  variant="primary"
+  class="flex flex-col flex-1 min-h-0 max-md:border-0 max-md:bg-transparent"
+>
+  <!-- Barra de cabeçalho do painel (apenas desktop) -->
+  <ob-panel-bar
+    title="EXTRATO"
+    [meta]="periodLabel()"
+    position="top"
+    class="hidden md:flex shrink-0"
+  />
+
+  <!-- Cabeçalho de colunas (grid-cols-12 alinhado em 24px, apenas desktop) -->
+  <div
+    class="hidden md:grid shrink-0 sticky top-0 z-20 grid-cols-12 border-b border-line bg-surface-sunken px-6 py-2.5 text-label uppercase tracking-wider text-fg-muted font-mono"
+  >
+    <div class="col-span-2 text-left">DATA</div>
+    <div class="col-span-4 text-left">LANÇAMENTOS</div>
+    <div class="col-span-2 text-right">ENTRADAS</div>
+    <div class="col-span-2 text-right">SAÍDAS</div>
+    <div class="col-span-2 text-right">SALDO</div>
+  </div>
+
+  <!-- Corpo rolável (smooth-scrollbar no desktop, lista de cards no mobile) -->
+  <div
+    #scrollContainer
+    class="flex flex-col gap-1.5 md:block md:flex-1 md:min-h-0 md:overflow-y-auto md:divide-y md:divide-line-faint relative"
+  >
+    @if (days().length === 0) {
+      <div class="py-12 text-center text-fg-faint font-mono uppercase text-xs">
+        // NENHUM REGISTRO LOCALIZADO
+      </div>
+    } @else {
+      @for (day of days(); track day.date) {
+        <div #dayRowElement [id]="'ledger-day-' + day.date">
+          <ob-ledger-row
+            [day]="day"
+            [isToday]="isToday(day.date)"
+            [isFuture]="isFuture(day.date)"
+            [isExpanded]="expandedDate() === day.date"
+            (toggle)="toggleDay(day.date)"
+          />
+
+          <!-- Gaveta de detalhes inline (acordeão) -->
+          @if (expandedDate() === day.date) {
+            <div class="mt-1 md:mt-0">
+              <ob-day-details
+                [day]="day"
+                (addTransaction)="addTransaction.emit($event)"
+              />
+            </div>
+          }
+        </div>
+      }
+    }
+  </div>
+
+  <!-- Barra de rodapé do painel (apenas desktop) -->
+  <ob-panel-bar
+    title="SINCRONIZADO"
+    [meta]="syncRangeLabel()"
+    position="bottom"
+    class="hidden md:flex shrink-0"
+  />
+</ob-panel>

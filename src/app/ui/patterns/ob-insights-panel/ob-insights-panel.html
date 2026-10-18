@@ -1,0 +1,131 @@
+<!-- Visão Mobile (< md): Card Hero de Saldo Total + Ações Rápidas -->
+<div class="md:hidden border border-line-strong bg-surface p-4">
+  <span class="block text-micro uppercase tracking-wider text-fg-subtle">
+    SALDO TOTAL
+  </span>
+
+  <div class="mt-0.5">
+    <ob-money
+      [amount]="currentBalance()"
+      variant="balance"
+      class="text-3xl"
+    />
+  </div>
+
+  <div class="mt-4 grid grid-cols-2 gap-2 border-t border-line pt-3">
+    <button
+      obButton
+      variant="tint"
+      size="sm"
+      type="button"
+      (click)="createIncome.emit()"
+    >
+      <lucide-icon name="arrow-down-left" class="size-3.5" [strokeWidth]="2" />
+      ENTRADA
+    </button>
+
+    <button
+      obButton
+      variant="tint"
+      size="sm"
+      type="button"
+      (click)="createExpense.emit()"
+    >
+      <lucide-icon name="arrow-up-right" class="size-3.5" [strokeWidth]="2" />
+      SAÍDA
+    </button>
+  </div>
+</div>
+
+<!-- Visão Desktop (>= md): Barra de Insights Expansível -->
+<ob-panel variant="secondary" class="hidden md:block">
+  <!-- Faixa clicável (botão único acessível) -->
+  <button
+    type="button"
+    [attr.aria-expanded]="isExpanded()"
+    aria-controls="insights-content"
+    [attr.data-interactive]="true"
+    (click)="toggle()"
+    class="flex w-full flex-wrap items-center justify-between gap-4 px-6 py-2.5 cursor-pointer transition-colors hover:bg-tint-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg text-left"
+  >
+    <!-- Stats inline -->
+    <div class="flex flex-wrap items-center gap-6">
+      <ob-stat
+        label="SALDO ATUAL:"
+        [amount]="currentBalance()"
+        [showMarker]="true"
+        [emphasized]="true"
+      />
+
+      <div class="hidden sm:flex border-l border-line pl-6">
+        <ob-stat
+          label="ENTRADAS:"
+          [amount]="totalIncome()"
+          moneyVariant="income"
+        />
+      </div>
+
+      <div class="hidden sm:flex border-l border-line pl-6">
+        <ob-stat
+          label="SAÍDAS:"
+          [amount]="totalExpense()"
+          moneyVariant="expense"
+        />
+      </div>
+
+      <div class="hidden lg:flex border-l border-line pl-6">
+        <ob-stat
+          label="STATUS:"
+          [customValue]="statusText()"
+          [showMarker]="true"
+          markerVariant="neutral"
+        />
+      </div>
+    </div>
+
+    <!-- Indicador visual em estilo ghost -->
+    <span
+      class="inline-flex items-center px-2.5 py-0.5 text-label uppercase font-mono border border-line bg-surface-sunken text-fg-muted"
+    >
+      {{ isExpanded() ? '[ - RECOLHER ]' : '[ + INSIGHTS ]' }}
+    </span>
+  </button>
+
+  <!-- Área expandida -->
+  @if (isExpanded()) {
+    <div
+      id="insights-content"
+      class="border-t border-line bg-surface-sunken grid grid-cols-1 divide-y divide-line md:grid-cols-4 md:divide-x md:divide-y-0"
+    >
+      <ob-metric-block
+        label="SALDO HOJE"
+        [amount]="currentBalance()"
+        [isHero]="true"
+        meta="POSIÇÃO CONSOLIDADA"
+      />
+
+      <ob-metric-block
+        label="ENTRADAS PREVISTAS"
+        [amount]="totalIncome()"
+        variant="income"
+        meta="FLUXO NO PERÍODO"
+      />
+
+      <ob-metric-block
+        label="SAÍDAS PREVISTAS"
+        [amount]="totalExpense()"
+        variant="expense"
+        meta="FLUXO NO PERÍODO"
+      />
+
+      <ob-metric-block
+        label="MENOR SALDO PROJETADO"
+        [amount]="minProjectedBalance()"
+        variant="balance"
+        [isProjected]="true"
+        [meta]="isMinAlert() ? 'ALERTA // QUEDA EXPRESSIVA' : 'PREVISÃO MÍNIMA'"
+        [metaAlert]="isMinAlert()"
+      />
+    </div>
+  }
+</ob-panel>

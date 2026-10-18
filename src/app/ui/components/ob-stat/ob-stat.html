@@ -1,0 +1,17 @@
+@if (showMarker()) {
+  <ob-marker [variant]="markerVariant()" size="sm" />
+}
+<span class="text-micro uppercase tracking-wider text-fg-subtle">
+  {{ label() }}
+</span>
+@if (customValue()) {
+  <span class="text-label uppercase text-fg-muted">{{ customValue() }}</span>
+} @else {
+  <ob-money
+    [amount]="amount()"
+    [variant]="moneyVariant()"
+    [isProjected]="isProjected()"
+    [class.text-sm]="emphasized()"
+    [class.text-xs]="!emphasized()"
+  />
+}

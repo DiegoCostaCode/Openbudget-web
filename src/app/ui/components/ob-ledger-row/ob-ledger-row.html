@@ -1,0 +1,73 @@
+<!-- Esquerda no Mobile (empilhado) / Colunas 1 e 2 no Desktop (md:contents) -->
+<div class="flex flex-col gap-0.5 text-left min-w-0 pr-2 md:contents">
+  <!-- Coluna 1: DATA (col-span-2 no desktop, compacta no mobile) -->
+  <div class="md:col-span-2 text-left min-w-0">
+    <ob-date
+      class="hidden md:inline-flex"
+      [date]="day().date"
+      [isToday]="isToday()"
+      [isFuture]="isFuture()"
+    />
+    <ob-date
+      class="inline-flex md:hidden"
+      [date]="day().date"
+      [isToday]="isToday()"
+      [isFuture]="isFuture()"
+      format="compact"
+      [showWeekday]="false"
+    />
+  </div>
+
+  <!-- Coluna 2: LANÇAMENTOS (col-span-4 no desktop) -->
+  <div class="truncate font-bold md:font-normal text-xs md:col-span-4 text-left min-w-0 md:pr-2">
+    @if (txCount() === 0) {
+      <span class="text-fg-faint font-mono font-normal">// SEM MOVIMENTAÇÕES</span>
+    } @else if (txCount() === 1) {
+      <span class="truncate text-fg-tertiary font-mono">
+        {{ day().transactions[0].description }}
+      </span>
+    } @else {
+      <span class="inline-flex items-center gap-1.5 md:gap-2 uppercase text-fg-tertiary font-mono md:font-medium">
+        <ob-marker size="sm" />
+        {{ txCount() }} LANÇAMENTOS
+      </span>
+    }
+  </div>
+</div>
+
+<!-- Coluna 3: ENTRADAS (col-span-2, apenas desktop) -->
+<div class="hidden md:block md:col-span-2 text-right">
+  <ob-money
+    [amount]="incomeTotal()"
+    variant="income"
+    [emptyIfZero]="true"
+  />
+</div>
+
+<!-- Coluna 4: SAÍDAS (col-span-2, apenas desktop) -->
+<div class="hidden md:block md:col-span-2 text-right">
+  <ob-money
+    [amount]="expenseTotal()"
+    variant="expense"
+    [emptyIfZero]="true"
+  />
+</div>
+
+<!-- Coluna 5 / Direita Mobile: SALDO (+ Delta líquido no mobile) -->
+<div class="text-right shrink-0 md:col-span-2">
+  <ob-money
+    [amount]="day().balance"
+    variant="balance"
+    [isProjected]="isFuture()"
+    [class.text-sm]="isToday()"
+    [class.md:text-xs]="isToday()"
+  />
+  @if (netDelta() !== 0) {
+    <div class="block text-micro md:hidden">
+      <ob-money
+        [amount]="netDelta()"
+        [variant]="netDelta() > 0 ? 'income' : 'expense'"
+      />
+    </div>
+  }
+</div>

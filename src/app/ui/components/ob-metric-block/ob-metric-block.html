@@ -1,0 +1,21 @@
+<span class="block text-micro uppercase tracking-widest text-fg-subtle">
+  {{ label() }}
+</span>
+<div class="mt-1">
+  <ob-money
+    [amount]="amount()"
+    [variant]="variant()"
+    [isProjected]="isProjected()"
+    [class.text-2xl]="isHero()"
+    [class.text-xl]="!isHero()"
+  />
+</div>
+@if (meta()) {
+  <span
+    class="mt-1 block text-micro uppercase"
+    [class.text-fg-muted]="metaAlert()"
+    [class.text-fg-subtle]="!metaAlert()"
+  >
+    {{ meta() }}
+  </span>
+}

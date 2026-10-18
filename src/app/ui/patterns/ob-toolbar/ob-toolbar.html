@@ -1,0 +1,31 @@
+<div class="flex flex-wrap items-center justify-between gap-4">
+  <!-- Esquerda: Seletor de período -->
+  <ob-segmented-control
+    [(value)]="period"
+  />
+
+  <!-- Direita: Ações principais -->
+  <div class="flex items-center gap-2">
+    <button
+      obButton
+      variant="secondary"
+      size="md"
+      type="button"
+      (click)="goToToday.emit()"
+    >
+      <ob-marker size="sm" />
+      IR PARA HOJE
+    </button>
+
+    <button
+      obButton
+      variant="primary"
+      size="md"
+      type="button"
+      (click)="newTransaction.emit()"
+    >
+      <lucide-icon name="plus" class="size-4" [strokeWidth]="2.5" />
+      NOVA TRANSAÇÃO
+    </button>
+  </div>
+</div>

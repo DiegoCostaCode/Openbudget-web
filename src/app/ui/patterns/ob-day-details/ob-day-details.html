@@ -1,0 +1,37 @@
+<!-- Cabeçalho técnico -->
+<div class="mb-2 flex items-center justify-between border-b border-line-faint pb-2">
+  <span class="text-label uppercase tracking-wider text-fg-subtle font-mono">
+    TRANSAÇÕES // {{ formattedDate() }}
+  </span>
+  <span class="text-micro uppercase text-fg-subtle font-mono">
+    {{ txCount() }} {{ txCount() === 1 ? 'ITEM' : 'ITENS' }}
+  </span>
+</div>
+
+<!-- Lista vertical de largura total -->
+<div class="flex flex-col gap-2 w-full">
+  @if (txCount() === 0) {
+    <div class="py-2 text-center text-fg-faint font-mono text-xs">
+      // SEM MOVIMENTAÇÕES
+    </div>
+  } @else {
+    @for (tx of day().transactions; track tx.id) {
+      <ob-transaction-item [transaction]="tx" />
+    }
+  }
+</div>
+
+<!-- CTA sempre abaixo da lista -->
+<div class="mt-4">
+  <button
+    obButton
+    variant="primary"
+    size="lg"
+    [block]="true"
+    type="button"
+    (click)="addTransaction.emit(day().date)"
+  >
+    <lucide-icon name="plus" class="size-4" [strokeWidth]="2.5" />
+    INCLUIR NESTE DIA
+  </button>
+</div>

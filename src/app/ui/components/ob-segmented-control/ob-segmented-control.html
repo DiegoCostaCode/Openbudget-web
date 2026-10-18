@@ -1,0 +1,23 @@
+<div
+  role="radiogroup"
+  class="inline-flex border border-line-strong bg-surface-sunken"
+>
+  @for (option of options(); track option) {
+    <button
+      type="button"
+      role="radio"
+      [attr.aria-checked]="value() === option"
+      [attr.data-interactive]="true"
+      (click)="select(option)"
+      class="px-4 py-1.5 text-xs border-r border-line-strong last:border-r-0 transition-colors uppercase cursor-pointer"
+      [class.bg-accent]="value() === option"
+      [class.font-bold]="value() === option"
+      [class.text-on-accent]="value() === option"
+      [class.text-fg-muted]="value() !== option"
+      [class.hover:bg-tint-fill]="value() !== option"
+      [class.hover:text-fg]="value() !== option"
+    >
+      {{ option }}
+    </button>
+  }
+</div>

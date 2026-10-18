@@ -1,0 +1,39 @@
+<header
+  class="sticky top-0 z-50 shrink-0 flex items-center justify-between border-b border-line-strong md:border-line bg-surface md:bg-canvas px-4 md:px-6 py-3"
+>
+  <!-- Logomarca & Wordmark -->
+  <div class="flex items-center gap-2 md:gap-3">
+    <div
+      class="flex size-6 md:size-7 shrink-0 items-center justify-center bg-accent text-xs md:text-sm font-bold text-on-accent font-mono"
+    >
+      OB
+    </div>
+    <span class="text-xs md:text-sm font-bold uppercase tracking-tight text-fg font-mono">
+      OPENBUDGET
+    </span>
+  </div>
+
+  <!-- Lado direito: Período (Mobile), Usuário (Desktop) & Sair -->
+  <div class="flex items-center gap-3 md:gap-4">
+    <span class="md:hidden text-micro text-fg-muted font-mono uppercase tracking-wider">
+      {{ period() }}
+    </span>
+
+    @if (userEmail()) {
+      <span class="hidden sm:inline-flex items-center gap-2 text-micro uppercase tracking-wider text-fg-subtle font-mono">
+        <ob-marker size="sm" />
+        {{ userEmail() }}
+      </span>
+    }
+
+    <button
+      obButton
+      variant="ghost"
+      size="xs"
+      (click)="logout()"
+      title="Encerrar sessão"
+    >
+      [ SAIR ]
+    </button>
+  </div>
+</header>

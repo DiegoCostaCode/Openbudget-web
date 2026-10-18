@@ -1,0 +1,9 @@
+<div class="flex items-center gap-2">
+  <ob-marker [size]="markerSize()" />
+  <span [class]="titleClasses()">{{ title() }}</span>
+</div>
+@if (meta()) {
+  <span class="text-label uppercase text-fg-subtle font-mono tabular-nums">
+    {{ meta() }}
+  </span>
+}
