@@ -14,20 +14,32 @@ export class Api {
     private http: HttpClient
   ){}
 
-  get<T>(endpoint: string): Observable<T> {
-    return this.http.get<T>(this.baseUrl + endpoint);
+  get<T>(endpoint: string, options?: object): Observable<T> {
+    return this.http.get<T>(this.baseUrl + endpoint, { 
+      withCredentials: true, 
+      ...options 
+    });
   }
 
   post<T>(data: any, endpoint: string, options?: object): Observable<T> {
-    return this.http.post<T>(this.baseUrl + endpoint, data, options);
+    return this.http.post<T>(this.baseUrl + endpoint, data, { 
+      withCredentials: true, 
+      ...options 
+    });
   }
 
   put<T>(data: any, endpoint: string, options?: object): Observable<T> {
-    return this.http.put<T>(this.baseUrl + endpoint, data, options);
+    return this.http.put<T>(this.baseUrl + endpoint, data, { 
+      withCredentials: true, 
+      ...options 
+    });
   }
 
   delete<T>(endpoint: string, options?: object): Observable<T> {
-    return this.http.delete<T>(this.baseUrl + endpoint, options);
+    return this.http.delete<T>(this.baseUrl + endpoint, { 
+      withCredentials: true, 
+      ...options 
+    });
   }
 
 }
